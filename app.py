@@ -50,9 +50,14 @@ from transformers import pipeline, AutoTokenizer
 from gtts import gTTS
 
 # ── NLTK data (auto-download if missing) ─────────────────────────────
-for resource in ("punkt", "stopwords", "averaged_perceptron_tagger"):
+for resource, path in [
+    ("punkt", "tokenizers/punkt"),
+    ("punkt_tab", "tokenizers/punkt_tab"),
+    ("stopwords", "corpora/stopwords"),
+    ("averaged_perceptron_tagger", "taggers/averaged_perceptron_tagger"),
+]:
     try:
-        nltk.data.find(f"tokenizers/{resource}")
+        nltk.data.find(path)
     except LookupError:
         nltk.download(resource, quiet=True)
 
