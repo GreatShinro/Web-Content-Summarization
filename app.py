@@ -402,6 +402,17 @@ def scrape_url(url: str, timeout: int = 15) -> Tuple[str, str]:
 
 # ── 4a. Extractive summarization (TextRank-inspired) ─────────────────
 
+def _clean_summary(text: str) -> str:
+    """Fix common T5 artefacts, capitalisation, and spacing."""
+    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(r"([.!?])\1+", r"\1", text)
+    text = re.sub(r"([.!?])([A-Z])", r"\1 \2", text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    sentences = [s[0].upper() + s[1:] if s else s for s in sentences]
+    text = " ".join(sentences)
+    return text[0].upper() + text[1:] if text else text
+
+
 def _sentence_scores(sentences: List[str], stop_words: set) -> dict:
     """Score sentences by word-frequency (simplified TextRank)."""
     freq: dict = {}
@@ -441,7 +452,7 @@ def extractive_summarize(text: str, ratio: float = 0.3,
 
     # Preserve original sentence order
     ordered = [s for s in sentences if s in top]
-    return " ".join(ordered)
+    return _clean_summary(" ".join(ordered))
 
 
 # ── 4b. Abstractive summarization (HuggingFace T5-small) ─────────────
@@ -503,8 +514,7 @@ def abstractive_summarize(text: str,
         summaries.append(result[0]["summary_text"])
 
     final = " ".join(summaries)
-    # Clean artefacts sometimes left by T5
-    final = re.sub(r"\s+", " ", final).strip()
+    final = _clean_summary(final)
     return final
 
 
@@ -538,6 +548,8 @@ LANG_MAP = {
 
 def text_to_speech(text: str, lang_code: str = "en", slow: bool = False) -> bytes:
     """Convert text to MP3 bytes using gTTS."""
+    # Ensure sentences are properly separated for natural pacing
+    text = re.sub(r"([.!?])\s*", r"\1 ", text).strip()
     tts = gTTS(text=text, lang=lang_code, slow=slow)
     buf = io.BytesIO()
     tts.write_to_fp(buf)
