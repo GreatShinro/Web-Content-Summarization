@@ -104,6 +104,35 @@ html, body, [class*="css"] {
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding: 2rem 3rem 4rem; max-width: 1300px; }
 
+/* ── Hamburger button ── */
+#hamburger-btn {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 99999;
+    background: #238636;
+    border: none;
+    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    transition: background 0.2s;
+}
+#hamburger-btn:hover { background: #1a7f37; }
+#hamburger-btn span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: #fff;
+    border-radius: 2px;
+}
+
 /* ── App header ── */
 .app-header {
     display: flex;
@@ -666,6 +695,14 @@ def render_sidebar():
 def render_header():
     st.markdown(
         """
+        <button id="hamburger-btn" title="Toggle sidebar" aria-label="Toggle sidebar"
+                onclick="(function(){
+                    var btn = document.querySelector('[data-testid=stSidebarCollapseButton]')
+                           || document.querySelector('[data-testid=collapsedControl]');
+                    if(btn) btn.click();
+                })()">
+          <span></span><span></span><span></span>
+        </button>
         <div class="app-header">
           <div>
             <h1>📰 SummarizeAI</h1>
