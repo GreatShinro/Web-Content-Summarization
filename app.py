@@ -693,16 +693,45 @@ def render_sidebar():
 # ─────────────────────────────────────────────────────────────────────
 
 def render_header():
-    st.markdown(
+    # Inject hamburger button via component so JS runs in the top-level document
+    import streamlit.components.v1 as components
+    components.html(
         """
-        <button id="hamburger-btn" title="Toggle sidebar" aria-label="Toggle sidebar"
-                onclick="(function(){
-                    var btn = document.querySelector('[data-testid=stSidebarCollapseButton]')
-                           || document.querySelector('[data-testid=collapsedControl]');
-                    if(btn) btn.click();
-                })()">
+        <style>
+        #hbtn {
+            position: fixed;
+            top: 14px; left: 14px;
+            z-index: 99999;
+            background: #238636;
+            border: none; border-radius: 8px;
+            width: 42px; height: 42px;
+            cursor: pointer;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+        #hbtn:hover { background: #1a7f37; }
+        #hbtn span { display:block; width:22px; height:2px; background:#fff; border-radius:2px; }
+        </style>
+        <button id="hbtn" title="Toggle sidebar" aria-label="Toggle sidebar">
           <span></span><span></span><span></span>
         </button>
+        <script>
+        function toggleSidebar() {
+            var doc = window.parent.document;
+            var btn = doc.querySelector('[data-testid="stSidebarCollapseButton"] button')
+                   || doc.querySelector('[data-testid="collapsedControl"] button')
+                   || doc.querySelector('[data-testid="stSidebarCollapseButton"]')
+                   || doc.querySelector('[data-testid="collapsedControl"]');
+            if (btn) { btn.click(); }
+        }
+        document.getElementById('hbtn').addEventListener('click', toggleSidebar);
+        </script>
+        """,
+        height=0,
+    )
+    st.markdown(
+        """
         <div class="app-header">
           <div>
             <h1>📰 SummarizeAI</h1>
